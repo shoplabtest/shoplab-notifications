@@ -3,20 +3,21 @@ import { resolve } from 'node:path';
 import { Pool } from 'pg';
 import { loadConfig } from './config.ts';
 import { migrate } from './migrate.ts';
+import { SEED_PEOPLE } from './seedPeople.ts';
 import { PgStore, type Store } from './store.ts';
 
-/** Same shopper ids as shoplab-orders' and shoplab-invoices' seeds; iam generates its own ids. */
+/** Same shopper ids as shoplab-iam's, orders', payments' and invoices' seeds. */
 export const seedUserId = (i: number) => {
   const h = createHash('sha1').update(`shoplab-seed-user-${i}`).digest('hex');
   return `${h.slice(0, 8)}-${h.slice(8, 12)}-4${h.slice(13, 16)}-a${h.slice(17, 20)}-${h.slice(20, 32)}`;
 };
 
-/** 50 shoppers. Every 5th has push on; every 17th has email off. */
+/** 50 shoppers, with the names and emails iam seeds them with. Every 5th has push on; every 17th has email off. */
 export function seedShoppers(count = 50) {
   return Array.from({ length: count }, (_, i) => ({
     userId: seedUserId(i),
-    email: `shopper${i}@shoplab.test`,
-    fullName: `Seed Shopper ${i}`,
+    email: SEED_PEOPLE[i % SEED_PEOPLE.length][0],
+    fullName: SEED_PEOPLE[i % SEED_PEOPLE.length][1],
     push: i % 5 === 0,
     email_on: i % 17 !== 0,
   }));
